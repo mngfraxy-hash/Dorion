@@ -11,6 +11,7 @@ fn theme_is_enabled(name: String) -> bool {
 pub fn get_themes() -> Result<String, String> {
   let themes = get_theme_dir();
   let mut all_contents = String::new();
+  let mut available = std::collections::HashMap::new();
 
   for entry in fs::read_dir(themes).map_err(|e| format!("Error reading theme directory: {e}"))? {
     let entry = entry.map_err(|e| format!("Error reading theme directory: {e}"))?;
@@ -21,12 +22,20 @@ pub fn get_themes() -> Result<String, String> {
       .filter(|name| name != "cache" && name != ".ds_store")
       .unwrap_or_default();
 
-    if file_name.ends_with(".css") && theme_is_enabled(file_name) {
-      all_contents.push_str(
-        fs::read_to_string(entry.path())
-          .unwrap_or_default()
-          .as_str(),
-      );
+    if file_name.ends_with(".css") && theme_is_enabled(file_name.clone()) {
+      available.insert(file_name, entry.path());
+    }
+  }
+
+  // Load in the order the user set in the config, later themes override earlier ones
+  let config = get_config();
+  let disabled = config.disabled_themes.unwrap_or_default();
+  for name in config.themes.unwrap_or_default() {
+    if disabled.contains(&name) {
+      continue;
+    }
+    if let Some(path) = available.remove(&name) {
+      all_contents.push_str(fs::read_to_string(path).unwrap_or_default().as_str());
     }
   }
 

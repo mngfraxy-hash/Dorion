@@ -122,6 +122,9 @@ pub fn window_zoom_level(win: tauri::WebviewWindow<crate::Runtime>, value: Optio
 #[tauri::command]
 pub fn remove_top_bar(win: tauri::WebviewWindow<crate::Runtime>) {
   win.set_decorations(false).unwrap_or(());
+
+  #[cfg(target_os = "windows")]
+  crate::functionality::customize::reapply_opacity(&win);
 }
 
 // Top bar is broken for MacOS currently

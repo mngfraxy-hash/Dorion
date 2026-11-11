@@ -1,3 +1,10 @@
+> [!NOTE]
+> **Modified fork** of [SpikeHD/Dorion](https://github.com/SpikeHD/Dorion) (GPL-3.0), changed by mngfraxy-hash on 2026-11-11, branch `fraxy/settings-options`.
+> Adds settings: theme order and per-theme toggle, plugin import/export, always on top, window opacity, extra WebView2 arguments,
+> hardware video encode toggle, reduced memory while hidden, hideable Discord UI elements, configuration profiles and a safe mode button.
+> The settings panel is built from the matching fork of shelter-plugins and embedded in the binary (`scripts/bundle-plugins.sh`).
+> All original credits and the license are unchanged.
+
 <h1 align="center">
  <img height="100px" src="https://raw.githubusercontent.com/SpikeHD/Dorion/main/src-tauri/icons/icon.png" />
  <br />

@@ -78,7 +78,24 @@ static POPOUT_COUNTER: AtomicU64 = AtomicU64::new(0);
 pub fn additional_args() {
   // We set some of these internally, so make sure they stick around if we are about to add more
   let browser_args = std::env::var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").unwrap_or_default();
-  let new_args = args::get_webview_args();
+  let config = get_config();
+  let mut new_args = args::get_webview_args();
+
+  if config.disable_hw_video_encode.unwrap_or(false) {
+    new_args.push_str(" --disable-accelerated-video-encode");
+  }
+
+  if let Some(extra) = config.webview_args.filter(|a| !a.trim().is_empty()) {
+    for arg in extra.split_whitespace() {
+      // a debug port would hand the logged-in session to any local process
+      if !arg.starts_with("--") || arg.starts_with("--remote-debugging") {
+        log!("Ignoring webview arg from config: {arg}");
+        continue;
+      }
+      new_args.push(' ');
+      new_args.push_str(arg);
+    }
+  }
 
   unsafe {
     std::env::set_var(
@@ -387,16 +404,36 @@ fn main() {
       window_helpers::ultrashow,
       window_helpers::window_zoom_level,
       util::color::get_os_accent,
+      functionality::customize::get_bundled_plugins,
+      functionality::customize::set_always_on_top,
+      functionality::customize::set_window_opacity,
+      functionality::customize::import_plugin,
+      functionality::customize::import_config,
+      functionality::customize::list_config_snapshots,
+      functionality::customize::save_config_snapshot,
+      functionality::customize::load_config_snapshot,
+      functionality::customize::delete_config_snapshot,
+      functionality::customize::export_to_downloads,
     ])
     .on_window_event(|window, event| match event {
       tauri::WindowEvent::Focused(true) => {
         // Stop flashing the taskbar icon
         let _ = window.request_user_attention(None);
+
+        #[cfg(target_os = "windows")]
+        functionality::customize::update_memory_target(window);
+      }
+      tauri::WindowEvent::Focused(false) => {
+        #[cfg(target_os = "windows")]
+        functionality::customize::update_memory_target(window);
       }
       tauri::WindowEvent::Resized { .. } => {
         // Sleep for a millisecond (blocks the thread but it doesn't really matter)
         // https://github.com/tauri-apps/tauri/issues/6322#issuecomment-1448141495
         std::thread::sleep(Duration::from_micros(1));
+
+        #[cfg(target_os = "windows")]
+        functionality::customize::update_memory_target(window);
       }
       tauri::WindowEvent::Destroyed => {
         log!("Destroyed window");

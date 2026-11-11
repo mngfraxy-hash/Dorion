@@ -54,6 +54,15 @@ pub struct Config {
   pub rpc_ipc_connector: Option<bool>,
   pub rpc_websocket_connector: Option<bool>,
   pub rpc_secondary_events: Option<bool>,
+
+  // fraxy/settings-options
+  pub always_on_top: Option<bool>,
+  pub window_opacity: Option<u8>,
+  pub webview_args: Option<String>,
+  pub disable_hw_video_encode: Option<bool>,
+  pub low_memory_when_hidden: Option<bool>,
+  pub hidden_ui_elements: Option<Vec<String>>,
+  pub disabled_themes: Option<Vec<String>>,
 }
 
 impl Config {
@@ -101,6 +110,14 @@ impl Config {
       rpc_ipc_connector: Option::from(true),
       rpc_websocket_connector: Option::from(true),
       rpc_secondary_events: Option::from(true),
+
+      always_on_top: Option::from(false),
+      window_opacity: Option::from(100),
+      webview_args: Option::from("".to_string()),
+      disable_hw_video_encode: Option::from(false),
+      low_memory_when_hidden: Option::from(false),
+      hidden_ui_elements: Option::from(vec![]),
+      disabled_themes: Option::from(vec![]),
     }
   }
 
@@ -151,6 +168,16 @@ impl Config {
         .rpc_websocket_connector
         .or(self.rpc_websocket_connector),
       rpc_secondary_events: other.rpc_secondary_events.or(self.rpc_secondary_events),
+
+      always_on_top: other.always_on_top.or(self.always_on_top),
+      window_opacity: other.window_opacity.or(self.window_opacity),
+      webview_args: other.webview_args.or(self.webview_args.clone()),
+      disable_hw_video_encode: other
+        .disable_hw_video_encode
+        .or(self.disable_hw_video_encode),
+      low_memory_when_hidden: other.low_memory_when_hidden.or(self.low_memory_when_hidden),
+      hidden_ui_elements: other.hidden_ui_elements.or(self.hidden_ui_elements.clone()),
+      disabled_themes: other.disabled_themes.or(self.disabled_themes.clone()),
     }
   }
 

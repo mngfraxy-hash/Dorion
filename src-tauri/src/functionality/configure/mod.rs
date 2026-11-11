@@ -92,6 +92,8 @@ pub fn configure(window: &tauri::WebviewWindow<crate::Runtime>) {
     }
 
     window_zoom_level(event_window.clone(), None);
+
+    super::customize::apply_window_options(window);
   });
 
   #[cfg(feature = "blur")]

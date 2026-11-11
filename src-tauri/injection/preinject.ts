@@ -107,6 +107,18 @@ window.Dorion = {
     }],
   }
 
+  // fraxy/settings-options: these ship inside the binary (local shelter plugins) instead of being fetched
+  const bundled: [string, string, string][] = await invoke('get_bundled_plugins').catch(() => [])
+  for (const [name, js, manifest] of bundled) {
+    window.SHELTER_INJECTOR_PLUGINS[name] = {
+      js,
+      manifest: JSON.parse(manifest),
+      injectorIntegration: name === 'Inline CSS'
+        ? { ...INJECTED_PLUGIN_OPTIONS, allowedActions: { toggle: true } }
+        : INJECTED_PLUGIN_OPTIONS,
+    }
+  }
+
   init()
 })()
 

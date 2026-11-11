@@ -38,6 +38,9 @@ pub fn set_decorations(win: tauri::WebviewWindow<crate::Runtime>, enable: bool) 
   {
     let _ = win.set_decorations(enable);
   }
+
+  #[cfg(target_os = "windows")]
+  super::customize::reapply_opacity(&win);
 }
 
 // Close
